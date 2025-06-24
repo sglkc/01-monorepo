@@ -10,6 +10,7 @@ CREATE TABLE articles (
     -- TODO: auto trigger updated_at?
     -- TODO: set default value for updated_at?
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP,
 );
 -- +goose StatementEnd
 
