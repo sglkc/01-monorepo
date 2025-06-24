@@ -55,7 +55,7 @@ func InitTracer(ctx context.Context) (
 		),
 	)
 	if err != nil {
-		fmt.Printf("Err creating OTLP exporter: %w\n", err)
+		fmt.Printf("Err creating OTLP exporter: %v\n", err)
 		os.Exit(1)
 		return nil, nil
 	}
@@ -71,7 +71,7 @@ func InitTracer(ctx context.Context) (
 		resource.WithTelemetrySDK(),
 	)
 	if err != nil {
-		fmt.Printf("Err creating resources: %w\n", err)
+		fmt.Printf("Err creating resources: %v\n", err)
 		os.Exit(1)
 		return nil, nil
 	}
