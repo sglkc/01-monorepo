@@ -60,3 +60,19 @@ based on my codebase, where should i implement the validator?
 ```
 
 </details>
+
+<details>
+    <summary>
+        [08:32 PM 24/06/2025] CopilotChat.Nvim: Claude Sonnet 4
+    </summary>
+
+- Amati, Tiru, Modifikasi
+
+```
+#file:/home/seya/code/01/skill-test/apps/zog-news/README.md
+#url:https://github.com/moonrepo/setup-toolchain
+
+create a github workflow to run test using moon
+```
+
+</details>

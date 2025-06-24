@@ -1,0 +1,51 @@
+name: Run Tests
+
+on:
+  push:
+    branches: master
+  pull_request:
+    branches: master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        # do not depend on .env
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup toolchain
+      uses: moonrepo/setup-toolchain@v0
+      with:
+        auto-install: true
+
+    - name: Set up environment
+      run: |
+        cp .env.example .env
+
+    - name: Install dependencies
+      run: moon run tidy
+
+    - name: Run tests
+      run: moon run zog-news:test
+      # do not depend on .env
+      env:
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
