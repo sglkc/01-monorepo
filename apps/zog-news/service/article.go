@@ -70,10 +70,10 @@ func (a *ArticleService) UpdateArticle(
 		return nil, domain.ErrArticleNotFound
 	}
 
-	existing.Title = a.Title
-	existing.Content = a.Content
-	existing.Author = a.Author
-	existing.Status = a.Status
+	existing.Title = u.Title
+	existing.Content = u.Content
+	existing.Author = u.Author
+	existing.Status = u.Status
 
 	_, err = a.articleRepo.UpdateArticle(ctx, id, existing)
 	if err != nil {
