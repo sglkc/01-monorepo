@@ -15,6 +15,7 @@ import (
 	"zog-news/internal/repository/postgres"
 	"zog-news/internal/rest"
 	"zog-news/internal/rest/middleware"
+	"zog-news/internal/validator"
 	"zog-news/service"
 
 	"github.com/labstack/echo/v4"
@@ -55,6 +56,8 @@ func main() {
 
 	e.Logger.SetOutput(os.Stdout)
 	e.Logger.SetLevel(0)
+
+    e.Validator = validator.NewValidator()
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
