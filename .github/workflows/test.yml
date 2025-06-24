@@ -46,7 +46,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./apps/zog-news
-        run: go mod download
+        run: go mod tidy
 
       - name: Wait for PostgreSQL
         run: |
