@@ -13,12 +13,12 @@ func runSeeder(db *sql.DB, target string) error {
 
 	switch target {
 	case "all":
-		if err := seeders.SeedUsers(db); err != nil {
+		if err := seeders.SeedArticles(db); err != nil {
 			return fmt.Errorf("seeding users failed: %w", err)
 		}
 		// continue for other tables
-	case "users":
-		if err := seeders.SeedUsers(db); err != nil {
+	case "articles":
+		if err := seeders.SeedArticles(db); err != nil {
 			return fmt.Errorf("seeding users failed: %w", err)
         }
     // continue for other tables
