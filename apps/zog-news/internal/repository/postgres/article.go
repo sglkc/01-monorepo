@@ -25,7 +25,7 @@ func (a *ArticleRepository) CreateArticle(ctx context.Context, article *domain.C
 
 	query := `
 		INSERT INTO articles (title, content, author, status, created_at, updated_at)
-		VALUES ($1, $2, $3, NOW(), NOW())
+		VALUES ($1, $2, $3, $4, NOW(), NOW())
 		RETURNING id`
 
 	var id uuid.UUID
