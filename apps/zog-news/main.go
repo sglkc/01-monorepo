@@ -75,13 +75,13 @@ func main() {
 		})
 	})
 
-	userRepo := postgres.NewUserRepository(dbPool)
-	userService := service.NewUserService(userRepo)
+	articleRepo := postgres.NewArticleRepository(dbPool)
+	articleService := service.NewArticleService(articleRepo)
 
 	apiV1 := e.Group("/api/v1")
-	usersGroup := apiV1.Group("")
+	articlesGroup := apiV1.Group("")
 
-	rest.NewUserHandler(usersGroup, userService)
+	rest.NewArticleHandler(articlesGroup, articleService)
 
 	// Get host from environment variable, default to 127.0.0.1 if not set
 	host := os.Getenv("APP_HOST")
