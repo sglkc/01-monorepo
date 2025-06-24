@@ -7,10 +7,7 @@ CREATE TABLE articles (
     author VARCHAR(100) NOT NULL,
     status article_status NOT NULL DEFAULT 'draft',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    -- TODO: auto trigger updated_at?
-    -- TODO: set default value for updated_at?
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP,
 );
 -- +goose StatementEnd
 
