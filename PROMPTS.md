@@ -76,3 +76,20 @@ create a github workflow to run test using moon
 ```
 
 </details>
+
+<details>
+    <summary>
+        [09:10 PM 24/06/2025] GitHub Copilot: GPT 4.1
+    </summary>
+
+- Moon & Proto too complicated!
+
+```
+How does one create a test workflow for go app in this template? Please create and explain using go 1.24.2 and postgresql 17
+```
+
+```
+explain why did you use go mod download instead of go tidy?
+```
+
+</details>

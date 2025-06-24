@@ -1,10 +1,18 @@
-name: Run Tests
+name: Test Go App
 
 on:
   push:
-    branches: master
+    paths:
+      - '**.go'
+      - '**/go.mod'
+      - '**/go.sum'
+      - '.github/workflows/test.yml'
   pull_request:
-    branches: master
+    paths:
+      - '**.go'
+      - '**/go.mod'
+      - '**/go.sum'
+      - '.github/workflows/test.yml'
 
 jobs:
   test:
@@ -13,39 +21,45 @@ jobs:
     services:
       postgres:
         image: postgres:17
-        # do not depend on .env
         env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_USER: postgres
-          POSTGRES_DB: test_db
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: testdb
         ports:
           - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U testuser -d testdb"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      DATABASE_URL: postgres://testuser:testpass@localhost:5432/testdb?sslmode=disable
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - uses: actions/checkout@v4
 
-    - name: Setup toolchain
-      uses: moonrepo/setup-toolchain@v0
-      with:
-        auto-install: true
+      - name: Set up Go 1.24.2
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.24.2
 
-    - name: Set up environment
-      run: |
-        cp ./apps/zog-news/.env.example ./apps/zog-news/.env
+      - name: Install dependencies
+        working-directory: ./apps/zog-news
+        run: go mod download
 
-    - name: Install dependencies
-      run: moon run tidy
+      - name: Wait for PostgreSQL
+        run: |
+          for i in {1..30}; do
+            if pg_isready -h localhost -p 5432 -U testuser -d testdb; then
+              echo "PostgreSQL is ready"
+              break
+            fi
+            sleep 1
+          done
 
-    - name: Run tests
-      run: moon run zog-news:test
-      # do not depend on .env
-      env:
-        DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
+      - name: Run tests
+        working-directory: ./apps/zog-news
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+        run: go test ./...
