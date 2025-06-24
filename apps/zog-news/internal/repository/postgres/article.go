@@ -51,7 +51,7 @@ func (a *ArticleRepository) GetArticleList(ctx context.Context, filter *domain.A
 			a.content,
             a.created_at,
             a.updated_at
-		FROM articles u
+		FROM articles a
         WHERE a.deleted_at is NULL`
 
 	var args []interface{}
