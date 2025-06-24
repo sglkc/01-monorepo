@@ -39,7 +39,7 @@ jobs:
 
     - name: Set up environment
       run: |
-        cp .env.example .env
+        cp ./apps/zog-news/.env.example ./apps/zog-news/.env
 
     - name: Install dependencies
       run: moon run tidy
