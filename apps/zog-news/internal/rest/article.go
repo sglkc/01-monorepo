@@ -125,6 +125,14 @@ func (h *ArticleHandler) CreateArticle(c echo.Context) error {
 		})
 	}
 
+	if err := c.Validate(&article); err != nil {
+		return c.JSON(http.StatusBadRequest, domain.ResponseSingleData[domain.Empty]{
+			Code:    http.StatusBadRequest,
+			Status:  "error",
+			Message: "Validation failed: " + err.Error(),
+		})
+	}
+
 	ctx := c.Request().Context()
 	createdArticle, err := h.Service.CreateArticle(ctx, &article)
 	if err != nil {
@@ -161,6 +169,14 @@ func (h *ArticleHandler) UpdateArticle(c echo.Context) error {
 			Code:    http.StatusBadRequest,
 			Status:  "error",
 			Message: "Invalid request payload",
+		})
+	}
+
+	if err := c.Validate(&article); err != nil {
+		return c.JSON(http.StatusBadRequest, domain.ResponseSingleData[domain.Empty]{
+			Code:    http.StatusBadRequest,
+			Status:  "error",
+			Message: "Validation failed: " + err.Error(),
 		})
 	}
 
