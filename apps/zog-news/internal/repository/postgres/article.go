@@ -130,6 +130,14 @@ func (a *ArticleRepository) GetArticle(ctx context.Context, id uuid.UUID) (*doma
 		return nil, err
 	}
 
+    // TODO: should topics be fetched here?
+    // topics, err := a.GetTopicsByArticleID(ctx, id)
+    // if err != nil {
+    //     return nil, err
+    // }
+    //
+    // article.Topics = topics
+
 	return &article, nil
 }
 
@@ -203,6 +211,7 @@ func (a *ArticleRepository) RemoveTopicFromArticle(
     articleID uuid.UUID,
     topicID string,
 ) error {
+    // Use deleted_at??
     query := `
         DELETE FROM article_topics
         WHERE article_id = $1 AND topic_id = $2`
@@ -214,9 +223,9 @@ func (a *ArticleRepository) RemoveTopicFromArticle(
 func (a *ArticleRepository) GetTopicsByArticleID(
     ctx context.Context,
     articleID uuid.UUID,
-) ([]string, error) {
+) ([]domain.Topic, error) {
     query := `
-        SELECT t.id
+        SELECT t.id, t.name, t.created_at, t.updated_at
         FROM article_topics at
         JOIN topics t ON at.topic_id = t.id
         WHERE at.article_id = $1`
@@ -228,19 +237,25 @@ func (a *ArticleRepository) GetTopicsByArticleID(
 
     defer rows.Close()
 
-    var topics []string
+    var topics []domain.Topic
 
     for rows.Next() {
-        var topicID string
-        if err := rows.Scan(&topicID); err != nil {
+        var topic domain.Topic
+        if err := rows.Scan(
+            &topic.ID,
+            &topic.Name,
+            &topic.CreatedAt,
+            &topic.UpdatedAt,
+        ); err != nil {
             return nil, err
         }
-        topics = append(topics, topicID)
+        topics = append(topics, topic)
     }
 
     return topics, nil
 }
 
+// TODO: move this to topic repo
 func (a *ArticleRepository) GetArticlesByTopicID(
     ctx context.Context,
     topicID string,
