@@ -146,3 +146,40 @@ func (a *TopicRepository) DeleteTopic(ctx context.Context, id uuid.UUID) error {
 	_, err := a.Conn.Exec(ctx, query, id)
 	return err
 }
+
+func (a *TopicRepository) GetTopicArticles(
+    ctx context.Context,
+    id uuid.UUID,
+) ([]domain.Article, error) {
+    query := `
+        SELECT a.id, a.title, a.content, a.author, a.status, a.created_at, a.updated_at
+        FROM articles a
+        JOIN article_topics at ON a.id = at.article_id
+        WHERE at.topic_id = $1 AND a.deleted_at IS NULL`
+    rows, err := a.Conn.Query(ctx, query, id)
+    if err != nil {
+        return nil, err
+    }
+
+    defer rows.Close()
+
+    var articles []domain.Article
+
+    for rows.Next() {
+        var article domain.Article
+        if err := rows.Scan(
+            &article.ID,
+            &article.Title,
+            &article.Content,
+            &article.Author,
+            &article.Status,
+            &article.CreatedAt,
+            &article.UpdatedAt,
+        ); err != nil {
+            return nil, err
+        }
+        articles = append(articles, article)
+    }
+
+    return articles, nil
+}

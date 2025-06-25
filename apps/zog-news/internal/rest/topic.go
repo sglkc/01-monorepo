@@ -21,6 +21,8 @@ type TopicService interface {
 	GetTopic(ctx context.Context, id uuid.UUID) (*domain.Topic, error)
 	UpdateTopic(ctx context.Context, id uuid.UUID, topic *domain.Topic) (*domain.Topic, error)
 	DeleteTopic(ctx context.Context, id uuid.UUID) error
+
+    GetTopicArticles(ctx context.Context, id uuid.UUID) ([]domain.Article, error)
 }
 
 type TopicHandler struct {
@@ -38,6 +40,9 @@ func NewTopicHandler(e *echo.Group, svc TopicService) {
 	topicGroup.POST("", handler.CreateTopic)
 	topicGroup.PUT("/:id", handler.UpdateTopic)
 	topicGroup.DELETE("/:id", handler.DeleteTopic)
+
+    topicArticlesGroup := topicGroup.Group("/:id/articles")
+    topicArticlesGroup.GET("", handler.GetTopicArticles)
 }
 
 func (h *TopicHandler) GetTopicList(c echo.Context) error {
@@ -209,4 +214,37 @@ func (h *TopicHandler) DeleteTopic(c echo.Context) error {
 		Status:  "success",
 		Message: "Topic successfully deleted",
 	})
+}
+
+func (h *TopicHandler) GetTopicArticles(c echo.Context) error {
+    idParam := c.Param("id")
+    id, err := uuid.Parse(idParam)
+    if err != nil {
+        return c.JSON(http.StatusBadRequest, domain.ResponseSingleData[domain.Empty]{
+            Code:    http.StatusBadRequest,
+            Status:  "error",
+            Message: "Invalid topic ID format",
+        })
+    }
+
+    ctx := c.Request().Context()
+    articles, err := h.Service.GetTopicArticles(ctx, id)
+    if err != nil {
+        fmt.Println("GetTopicArticles error:", err)
+        return c.JSON(http.StatusInternalServerError, domain.ResponseMultipleData[domain.Empty]{
+            Code:    http.StatusInternalServerError,
+            Status:  "error",
+            Message: "Failed to get topic articles: " + err.Error(),
+        })
+    }
+    if articles == nil {
+        articles = []domain.Article{}
+    }
+
+    return c.JSON(http.StatusOK, domain.ResponseMultipleData[domain.Article]{
+        Data:    articles,
+        Code:    http.StatusOK,
+        Status:  "success",
+        Message: "Successfully retrieved topic articles",
+    })
 }

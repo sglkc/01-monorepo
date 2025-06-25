@@ -15,6 +15,8 @@ type TopicRepository interface {
 	GetTopic(ctx context.Context, id uuid.UUID) (*domain.Topic, error)
 	UpdateTopic(ctx context.Context, id uuid.UUID, topic *domain.Topic) (*domain.Topic, error)
 	DeleteTopic(ctx context.Context, id uuid.UUID) error
+
+    GetTopicArticles(ctx context.Context, id uuid.UUID) ([]domain.Article, error)
 }
 
 type TopicService struct {
@@ -110,4 +112,14 @@ func (a *TopicService) GetTopicList(ctx context.Context, filter *domain.TopicFil
 	}
 
 	return topics, nil
+}
+
+func (a *TopicService) GetTopicArticles(ctx context.Context, id uuid.UUID) ([]domain.Article, error) {
+    articles, err := a.topicRepo.GetTopicArticles(ctx, id)
+    if err != nil {
+        fmt.Println(err)
+        return nil, err
+    }
+
+    return articles, nil
 }

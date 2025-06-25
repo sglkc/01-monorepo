@@ -20,7 +20,6 @@ type ArticleRepository interface {
     AddTopicToArticle(ctx context.Context, articleID uuid.UUID, topicID string) error
     // AddTopicsToArticle(ctx context.Context, articleID uuid.UUID, topicIDs []string) error
     RemoveTopicFromArticle(ctx context.Context, articleID uuid.UUID, topicID string) error
-    // GetArticlesByTopicID(ctx context.Context, topicID string) ([]domain.Article, error)
 }
 
 type ArticleService struct {

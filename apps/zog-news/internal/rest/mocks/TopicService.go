@@ -86,3 +86,19 @@ func (_m *TopicService) DeleteTopic(ctx context.Context, id uuid.UUID) error {
 
 	return r0
 }
+
+func (_m *TopicService) GetTopicArticles(ctx context.Context, id uuid.UUID) ([]domain.Article, error) {
+    ret := _m.Called(ctx, id)
+
+    var r0 []domain.Article
+    if ret.Get(0) != nil {
+        r0 = ret.Get(0).([]domain.Article)
+    }
+
+    var r1 error
+    if ret.Get(1) != nil {
+        r1 = ret.Error(1)
+    }
+
+    return r0, r1
+}
