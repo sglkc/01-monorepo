@@ -49,6 +49,7 @@ func (a *Article) HasTopicID(topic string) error {
     return nil
 }
 
+// TODO: check if topic id is deleted??
 func (a *Article) AddTopicID(topic string) error {
     if err := a.HasTopicID(topic); err != nil {
         return err
