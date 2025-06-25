@@ -46,9 +46,11 @@ func (a *ArticleRepository) CreateArticle(ctx context.Context, article *domain.C
 func (a *ArticleRepository) GetArticleList(ctx context.Context, filter *domain.ArticleFilter) ([]domain.Article, error) {
 	query := `
 		SELECT
-			a.id,
-			a.title,
-			a.content,
+            a.id,
+            a.title,
+            a.content,
+            a.author,
+            a.status,
             a.created_at,
             a.updated_at
 		FROM articles a
