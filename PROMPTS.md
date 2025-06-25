@@ -93,3 +93,59 @@ explain why did you use go mod download instead of go tidy?
 ```
 
 </details>
+
+<details>
+    <summary>
+        [02:35 PM 25/06/2025] CopilotChat.Nvim: Claude Sonnet 4
+    </summary>
+
+- Implementation
+
+```
+#filenames:**/*
+
+lets say i want to have a weak entity for article-topic relationship, how do i implement this? do i need domain, repo, services? lets do this slowly, explain to me like a beginner back-end engineer.
+```
+
+</details>
+
+<details>
+    <summary>
+        [06:49 PM 25/06/2025] CopilotChat.Nvim: Claude Sonnet 4
+    </summary>
+
+- Architectural confusion
+
+```
+#buffers
+
+if i add topic methods to article domain, then in the service should i use the methods from repo or domain?
+```
+
+```
+so in beginner terms: domains are used for business validation, and repository is for database operations, am i correct? if anything, does repository contains validation too? or should domain and repository methods have their own concerns?
+```
+
+```
+in my current implementation, domain methods doesnt return anything. is it bad? should i return errors instead?
+```
+
+```
+im still confused on how to handle the relationship, should i define topics field in article domain?
+
+if so, should i use topic struct or just the id is fine?
+
+lets say i want to get an article with its topics, i think having the struct object is better than having just ids. is it correct?
+
+if we are going the struct way, that means i have to change the topic parameter from string (id) to Topic struct, then i have to pass structs instead of ids. is this the best way to do it?
+
+lets go through this slowly
+```
+
+```
+you already now that this api has many to many relationship of articles and topics. but whats the actual best practice for the responses? is it "fine" to return list of topics by default?
+
+you may refer credible sources for your opinion
+```
+
+</details>
