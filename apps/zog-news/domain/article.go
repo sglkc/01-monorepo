@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"errors"
 	"time"
 )
 
@@ -36,29 +37,36 @@ type ArticleFilter struct {
 	Search string `json:"search" query:"search"`
 }
 
-func (a *Article) AddTopic(topic string) {
+func (a *Article) HasTopic(topic string) error {
     for _, t := range a.Topics {
         if t == topic {
-            return // Topic already exists
+            return errors.New("topic already exists")
         }
     }
-    a.Topics = append(a.Topics, topic)
+    return nil
 }
 
-func (a *Article) RemoveTopic(topic string) {
+func (a *Article) AddTopic(topic string) error {
+    if err := a.HasTopic(topic); err != nil {
+        return err
+    }
+    a.Topics = append(a.Topics, topic)
+    return nil
+}
+
+func (a *Article) RemoveTopic(topic string) error {
+    if len(a.Topics) == 0 {
+        return errors.New("no topics to remove")
+    }
+    if err := a.HasTopic(topic); err != nil {
+        return err
+    }
+
     for i, t := range a.Topics {
         if t == topic {
             a.Topics = append(a.Topics[:i], a.Topics[i+1:]...)
             break
         }
     }
-}
-
-func (a *Article) HasTopic(topic string) bool {
-    for _, t := range a.Topics {
-        if t == topic {
-            return true
-        }
-    }
-    return false
+    return nil
 }
