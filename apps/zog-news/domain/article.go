@@ -5,14 +5,23 @@ import (
 	"time"
 )
 
+// https://maddevs.io/writeups/personal-experience-using-clean-architecture-in-golang/
+type ArticleStatus string
+
+const (
+    StatusDraft ArticleStatus = "draft"
+    StatusPublished ArticleStatus = "published"
+    StatusDeleted ArticleStatus = "deleted"
+)
+
 type Article struct {
-	ID        string    `json:"id"`
-	Title     string    `json:"title"`
-	Content   string    `json:"content"`
-	Author    string    `json:"author"`
-	Status    string    `json:"status"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        string        `json:"id"`
+	Title     string        `json:"title"`
+	Content   string        `json:"content"`
+	Author    string        `json:"author"`
+	Status    ArticleStatus `json:"status"`
+	CreatedAt time.Time     `json:"created_at"`
+	UpdatedAt time.Time     `json:"updated_at"`
 
     // List of topic IDs associated with the article
     TopicIDs    []string  `json:"topic_ids,omitempty" db:"-"`
@@ -23,17 +32,17 @@ type Article struct {
 
 // Status defaults to "draft"
 type CreateArticleRequest struct {
-	Title     string    `json:"title" validate:"required"`
-	Content   string    `json:"content" validate:"required"`
-	Author    string    `json:"author" validate:"required"`
-	Status    string    `json:"status" validate:"oneof=draft published archived"`
+	Title     string        `json:"title" validate:"required"`
+	Content   string        `json:"content" validate:"required"`
+	Author    string        `json:"author" validate:"required"`
+	Status    ArticleStatus `json:"status" validate:"oneof=draft published archived"`
 }
 
 type UpdateArticleRequest struct {
-	Title     string    `json:"title" validate:"required"`
-	Content   string    `json:"content" validate:"required"`
-	Author    string    `json:"author" validate:"required"`
-	Status    string    `json:"status" validate:"oneof=draft published archived"`
+	Title     string        `json:"title" validate:"required"`
+	Content   string        `json:"content" validate:"required"`
+	Author    string        `json:"author" validate:"required"`
+	Status    ArticleStatus `json:"status" validate:"oneof=draft published archived"`
 }
 
 type ArticleFilter struct {
