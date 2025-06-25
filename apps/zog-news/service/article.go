@@ -15,6 +15,12 @@ type ArticleRepository interface {
 	GetArticle(ctx context.Context, id uuid.UUID) (*domain.Article, error)
 	UpdateArticle(ctx context.Context, id uuid.UUID, article *domain.Article) (*domain.Article, error)
 	DeleteArticle(ctx context.Context, id uuid.UUID) error
+
+    GetTopicsByArticleID(ctx context.Context, articleID uuid.UUID) ([]domain.Topic, error)
+    AddTopicToArticle(ctx context.Context, articleID uuid.UUID, topicID string) error
+    // AddTopicsToArticle(ctx context.Context, articleID uuid.UUID, topicIDs []string) error
+    RemoveTopicFromArticle(ctx context.Context, articleID uuid.UUID, topicID string) error
+    // GetArticlesByTopicID(ctx context.Context, topicID string) ([]domain.Article, error)
 }
 
 type ArticleService struct {
@@ -55,7 +61,7 @@ func (a *ArticleService) GetArticle(
 	return article, nil
 }
 
-// UpdateArticle updates name/email of an existing article.
+// UpdateArticle updates title/content/author/status of an existing article.
 func (a *ArticleService) UpdateArticle(
 	ctx context.Context,
 	id uuid.UUID,
@@ -113,4 +119,53 @@ func (a *ArticleService) GetArticleList(ctx context.Context, filter *domain.Arti
 	}
 
 	return articles, nil
+}
+
+func (a *ArticleService) GetTopicsByArticleID(
+    ctx context.Context,
+    articleID uuid.UUID,
+) ([]domain.Topic, error) {
+    topics, err := a.articleRepo.GetTopicsByArticleID(ctx, articleID)
+    if err != nil {
+        return nil, err
+    }
+    return topics, nil
+}
+
+func (a *ArticleService) AddTopicToArticle(
+    ctx context.Context,
+    articleID uuid.UUID,
+    topicID string,
+) error {
+    article, err := a.articleRepo.GetArticle(ctx, articleID)
+    if err != nil {
+        return err
+    }
+    if article == nil {
+        return domain.ErrArticleNotFound
+    }
+
+    if err := article.AddTopicID(topicID); err != nil {
+        return err
+    }
+
+    return a.articleRepo.AddTopicToArticle(ctx, articleID, topicID)
+}
+
+func (a *ArticleService) RemoveTopicFromArticle(
+    ctx context.Context,
+    articleID uuid.UUID,
+    topicID string,
+) error {
+    article, err := a.articleRepo.GetArticle(ctx, articleID)
+    if err != nil {
+        return err
+    }
+    if article == nil {
+        return domain.ErrArticleNotFound
+    }
+    if err := article.RemoveTopicID(topicID); err != nil {
+        return err
+    }
+    return a.articleRepo.RemoveTopicFromArticle(ctx, articleID, topicID)
 }

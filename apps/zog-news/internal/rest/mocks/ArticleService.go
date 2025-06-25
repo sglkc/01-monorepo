@@ -86,3 +86,41 @@ func (_m *ArticleService) DeleteArticle(ctx context.Context, id uuid.UUID) error
 
 	return r0
 }
+
+func (_m *ArticleService) AddTopicToArticle(ctx context.Context, articleID uuid.UUID, topicID string) error {
+    ret := _m.Called(ctx, articleID, topicID)
+
+    var r0 error
+    if ret.Get(0) != nil {
+        r0 = ret.Error(0)
+    }
+
+    return r0
+}
+
+func (_m *ArticleService) RemoveTopicFromArticle(ctx context.Context, articleID uuid.UUID, topicID string) error {
+    ret := _m.Called(ctx, articleID, topicID)
+
+    var r0 error
+    if ret.Get(0) != nil {
+        r0 = ret.Error(0)
+    }
+
+    return r0
+}
+
+func (_m *ArticleService) GetTopicsByArticleID(ctx context.Context, articleID uuid.UUID) ([]domain.Topic, error) {
+    ret := _m.Called(ctx, articleID)
+
+    var r0 []domain.Topic
+    if ret.Get(0) != nil {
+        r0 = ret.Get(0).([]domain.Topic)
+    }
+
+    var r1 error
+    if ret.Get(1) != nil {
+        r1 = ret.Error(1)
+    }
+
+    return r0, r1
+}
