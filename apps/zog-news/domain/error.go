@@ -15,4 +15,6 @@ var (
     ErrUserNotFound = errors.New("user not found")
     // ErrArticleNotFound
     ErrArticleNotFound = errors.New("article not found")
+    // ErrTopicNotFound
+    ErrTopicNotFound = errors.New("topic not found")
 )
