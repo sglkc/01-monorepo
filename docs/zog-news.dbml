@@ -1,0 +1,21 @@
+TABLE articles {
+  id UUID [NOT NULL, PRIMARY KEY]
+  author VARCHAR(64) [NOT NULL]
+  title VARCHAR(32) [NOT NULL]
+  content TEXT [NOT NULL]
+  status ENUM('draft', 'published', 'deleted') [NOT NULL, DEFAULT: 'draft']
+  created_at TIMESTAMP [NOT NULL, DEFAULT: 'NOW()']
+  updated_at TIMESTAMP
+}
+
+TABLE topics {
+  id UUID [NOT NULL, PRIMARY KEY]
+  name VARCHAR(32) [NOT NULL]
+  created_at TIMESTAMP [NOT NULL, DEFAULT: 'NOW()']
+  updated_at TIMESTAMP
+}
+
+TABLE article_topics {
+  article_id UUID [NOT NULL, PRIMARY KEY, ref: > articles.id]
+  topic_id UUID [NOT NULL, PRIMARY KEY, ref: > topics.id]
+}
