@@ -15,7 +15,10 @@ type Article struct {
 	UpdatedAt time.Time `json:"updated_at"`
 
     // List of topic IDs associated with the article
-    Topics    []string  `json:"topics,omitempty" db:"-"`
+    TopicIDs    []string  `json:"topic_ids,omitempty" db:"-"`
+
+    // Full Topic objects associated with the article for responses
+    Topics      []Topic   `json:"topics,omitempty" db:"-"`
 }
 
 // Status defaults to "draft"
@@ -37,8 +40,8 @@ type ArticleFilter struct {
 	Search string `json:"search" query:"search"`
 }
 
-func (a *Article) HasTopic(topic string) error {
-    for _, t := range a.Topics {
+func (a *Article) HasTopicID(topic string) error {
+    for _, t := range a.TopicIDs {
         if t == topic {
             return errors.New("topic already exists")
         }
@@ -46,25 +49,25 @@ func (a *Article) HasTopic(topic string) error {
     return nil
 }
 
-func (a *Article) AddTopic(topic string) error {
-    if err := a.HasTopic(topic); err != nil {
+func (a *Article) AddTopicID(topic string) error {
+    if err := a.HasTopicID(topic); err != nil {
         return err
     }
-    a.Topics = append(a.Topics, topic)
+    a.TopicIDs = append(a.TopicIDs, topic)
     return nil
 }
 
-func (a *Article) RemoveTopic(topic string) error {
-    if len(a.Topics) == 0 {
+func (a *Article) RemoveTopicID(topic string) error {
+    if len(a.TopicIDs) == 0 {
         return errors.New("no topics to remove")
     }
-    if err := a.HasTopic(topic); err != nil {
+    if err := a.HasTopicID(topic); err != nil {
         return err
     }
 
-    for i, t := range a.Topics {
+    for i, t := range a.TopicIDs {
         if t == topic {
-            a.Topics = append(a.Topics[:i], a.Topics[i+1:]...)
+            a.TopicIDs = append(a.TopicIDs[:i], a.TopicIDs[i+1:]...)
             break
         }
     }
