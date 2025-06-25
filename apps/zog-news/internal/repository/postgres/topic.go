@@ -123,7 +123,7 @@ func (a *TopicRepository) UpdateTopic(ctx context.Context, id uuid.UUID, topic *
 		UPDATE topics
 		SET name = $1,
 			updated_at = NOW()
-		WHERE id = $5 AND deleted_at IS NULL`
+		WHERE id = $2 AND deleted_at IS NULL`
 
 	_, err := a.Conn.Exec(ctx, query, topic.Name, id)
 	if err != nil {
