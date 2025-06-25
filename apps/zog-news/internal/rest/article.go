@@ -21,6 +21,10 @@ type ArticleService interface {
 	GetArticle(ctx context.Context, id uuid.UUID) (*domain.Article, error)
 	UpdateArticle(ctx context.Context, id uuid.UUID, article *domain.Article) (*domain.Article, error)
 	DeleteArticle(ctx context.Context, id uuid.UUID) error
+
+	GetTopicsByArticleID(ctx context.Context, articleID uuid.UUID) ([]domain.Topic, error)
+	AddTopicToArticle(ctx context.Context, articleID uuid.UUID, topicID string) error
+	RemoveTopicFromArticle(ctx context.Context, articleID uuid.UUID, topicID string) error
 }
 
 type ArticleHandler struct {
@@ -38,6 +42,11 @@ func NewArticleHandler(e *echo.Group, svc ArticleService) {
 	articleGroup.POST("", handler.CreateArticle)
 	articleGroup.PUT("/:id", handler.UpdateArticle)
 	articleGroup.DELETE("/:id", handler.DeleteArticle)
+
+	topicGroup := articleGroup.Group("/:id/topics") // topics group under articles
+	topicGroup.GET("", handler.GetTopicsByArticleID)
+	topicGroup.POST("/:topic_id", handler.AddTopicToArticle)
+	topicGroup.DELETE("/:topic_id", handler.RemoveTopicFromArticle)
 }
 
 func (h *ArticleHandler) GetArticleList(c echo.Context) error {
@@ -204,6 +213,135 @@ func (h *ArticleHandler) DeleteArticle(c echo.Context) error {
 		})
 	}
 
+	return c.JSON(http.StatusNoContent, domain.ResponseSingleData[domain.Empty]{
+		Code:    http.StatusNoContent,
+		Status:  "success",
+		Message: "Article successfully deleted",
+	})
+}
+
+func (h *ArticleHandler) GetTopicsByArticleID(c echo.Context) error {
+	idParam := c.Param("id")
+	id, err := uuid.Parse(idParam)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, domain.ResponseSingleData[domain.Empty]{
+			Code:    http.StatusBadRequest,
+			Status:  "error",
+			Message: "Invalid article ID format",
+		})
+	}
+	ctx := c.Request().Context()
+	topics, err := h.Service.GetTopicsByArticleID(ctx, id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, domain.ResponseSingleData[domain.Empty]{
+			Code:    http.StatusInternalServerError,
+			Status:  "error",
+			Message: "Failed to get topics for article: " + err.Error(),
+		})
+	}
+	if topics == nil {
+		topics = []domain.Topic{}
+	}
+
+	return c.JSON(http.StatusOK, domain.ResponseMultipleData[domain.Topic]{
+		Data:    topics,
+		Code:    http.StatusOK,
+		Status:  "success",
+		Message: "Successfully retrieved topics for article",
+	})
+}
+
+func (h *ArticleHandler) AddTopicToArticle(c echo.Context) error {
+	idParam := c.Param("id")
+	id, err := uuid.Parse(idParam)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, domain.ResponseSingleData[domain.Empty]{
+			Code:    http.StatusBadRequest,
+			Status:  "error",
+			Message: "Invalid article ID format",
+		})
+	}
+	topicID := c.Param("topic_id")
+	if topicID == "" {
+		return c.JSON(http.StatusBadRequest, domain.ResponseSingleData[domain.Empty]{
+			Code:    http.StatusBadRequest,
+			Status:  "error",
+			Message: "Topic ID is required",
+		})
+	}
+	ctx := c.Request().Context()
+	article, err := h.Service.GetArticle(ctx, id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, domain.ResponseSingleData[domain.Empty]{
+			Code:    http.StatusInternalServerError,
+			Status:  "error",
+			Message: "Failed to get article: " + err.Error(),
+		})
+	}
+	if article == nil {
+		return c.JSON(http.StatusNotFound, domain.ResponseSingleData[domain.Empty]{
+			Code:    http.StatusNotFound,
+			Status:  "error",
+			Message: "Article not found",
+		})
+	}
+	if err := h.Service.AddTopicToArticle(ctx, id, topicID); err != nil {
+		return c.JSON(http.StatusInternalServerError, domain.ResponseSingleData[domain.Empty]{
+			Code:    http.StatusInternalServerError,
+			Status:  "error",
+			Message: "Failed to update article with new topic: " + err.Error(),
+		})
+	}
+	// TODO: return article with topics??
+	return c.JSON(http.StatusOK, domain.ResponseSingleData[domain.Article]{
+		Data:    *article,
+		Code:    http.StatusOK,
+		Status:  "success",
+		Message: "Topic successfully added to article",
+	})
+}
+
+func (h *ArticleHandler) RemoveTopicFromArticle(c echo.Context) error {
+	idParam := c.Param("id")
+	id, err := uuid.Parse(idParam)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, domain.ResponseSingleData[domain.Empty]{
+			Code:    http.StatusBadRequest,
+			Status:  "error",
+			Message: "Invalid article ID format",
+		})
+	}
+	topicID := c.Param("topic_id")
+	if topicID == "" {
+		return c.JSON(http.StatusBadRequest, domain.ResponseSingleData[domain.Empty]{
+			Code:    http.StatusBadRequest,
+			Status:  "error",
+			Message: "Topic ID is required",
+		})
+	}
+	ctx := c.Request().Context()
+	article, err := h.Service.GetArticle(ctx, id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, domain.ResponseSingleData[domain.Empty]{
+			Code:    http.StatusInternalServerError,
+			Status:  "error",
+			Message: "Failed to get article: " + err.Error(),
+		})
+	}
+	if article == nil {
+		return c.JSON(http.StatusNotFound, domain.ResponseSingleData[domain.Empty]{
+			Code:    http.StatusNotFound,
+			Status:  "error",
+			Message: "Article not found",
+		})
+	}
+	if err := h.Service.RemoveTopicFromArticle(ctx, id, topicID); err != nil {
+		return c.JSON(http.StatusInternalServerError, domain.ResponseSingleData[domain.Empty]{
+			Code:    http.StatusInternalServerError,
+			Status:  "error",
+			Message: "Failed to update article with removed topic: " + err.Error(),
+		})
+	}
 	return c.JSON(http.StatusNoContent, domain.ResponseSingleData[domain.Empty]{
 		Code:    http.StatusNoContent,
 		Status:  "success",

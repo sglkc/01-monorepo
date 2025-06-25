@@ -145,9 +145,10 @@ func (a *ArticleService) AddTopicToArticle(
         return domain.ErrArticleNotFound
     }
 
-    if err := article.AddTopicID(topicID); err != nil {
-        return err
-    }
+    // TODO: article topics are not bound here?
+    // if err := article.AddTopicID(topicID); err != nil {
+    //     return err
+    // }
 
     return a.articleRepo.AddTopicToArticle(ctx, articleID, topicID)
 }
@@ -164,8 +165,9 @@ func (a *ArticleService) RemoveTopicFromArticle(
     if article == nil {
         return domain.ErrArticleNotFound
     }
-    if err := article.RemoveTopicID(topicID); err != nil {
-        return err
-    }
+    // TODO: article topics are not bound here?
+    // if err := article.RemoveTopicID(topicID); err != nil {
+    //     return err
+    // }
     return a.articleRepo.RemoveTopicFromArticle(ctx, articleID, topicID)
 }
