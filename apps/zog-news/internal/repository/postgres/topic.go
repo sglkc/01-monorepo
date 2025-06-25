@@ -53,7 +53,7 @@ func (a *TopicRepository) GetTopicList(ctx context.Context, filter *domain.Topic
 	var args []interface{}
 	var conditions []string
 	if filter != nil && filter.Search != "" {
-		conditions = append(conditions, `(a.title ILIKE $1 OR u.content ILIKE $1)`)
+		conditions = append(conditions, `(a.name ILIKE $1)`)
 		args = append(args, "%"+filter.Search+"%")
 	}
 

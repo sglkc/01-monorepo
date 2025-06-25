@@ -164,3 +164,116 @@ func (a *ArticleRepository) DeleteArticle(ctx context.Context, id uuid.UUID) err
 	_, err := a.Conn.Exec(ctx, query, id)
 	return err
 }
+
+func (a *ArticleRepository) AddTopicToArticle(
+    ctx context.Context,
+    articleID uuid.UUID,
+    topicID string,
+) error {
+    // Do nothing on conflict?
+    query := `
+        INSERT INTO article_topics (article_id, topic_id)
+        VALUES ($1, $2)`
+
+    _, err := a.Conn.Exec(ctx, query, articleID, topicID)
+    return err
+}
+
+func (a *ArticleRepository) AddTopicsToArticle(
+    ctx context.Context,
+    articleID uuid.UUID,
+    topicIDs []string,
+) error {
+    if len(topicIDs) == 0 {
+        return nil // No topics to add
+    }
+
+    // https://www.w3resource.com/PostgreSQL/postgresql_unnest-function.php
+    // Do nothing on conflict?
+    query := `
+        INSERT INTO article_topics (article_id, topic_id)
+        VALUES ($1, unnest($2::text[]))`
+
+    _, err := a.Conn.Exec(ctx, query, articleID, topicIDs)
+    return err
+}
+
+func (a *ArticleRepository) RemoveTopicFromArticle(
+    ctx context.Context,
+    articleID uuid.UUID,
+    topicID string,
+) error {
+    query := `
+        DELETE FROM article_topics
+        WHERE article_id = $1 AND topic_id = $2`
+
+    _, err := a.Conn.Exec(ctx, query, articleID, topicID)
+    return err
+}
+
+func (a *ArticleRepository) GetTopicsByArticleID(
+    ctx context.Context,
+    articleID uuid.UUID,
+) ([]string, error) {
+    query := `
+        SELECT t.id
+        FROM article_topics at
+        JOIN topics t ON at.topic_id = t.id
+        WHERE at.article_id = $1`
+
+    rows, err := a.Conn.Query(ctx, query, articleID)
+    if err != nil {
+        return nil, err
+    }
+
+    defer rows.Close()
+
+    var topics []string
+
+    for rows.Next() {
+        var topicID string
+        if err := rows.Scan(&topicID); err != nil {
+            return nil, err
+        }
+        topics = append(topics, topicID)
+    }
+
+    return topics, nil
+}
+
+func (a *ArticleRepository) GetArticlesByTopicID(
+    ctx context.Context,
+    topicID string,
+) ([]domain.Article, error) {
+    query := `
+        SELECT a.id, a.title, a.content, a.author, a.status, a.created_at, a.updated_at
+        FROM articles a
+        JOIN article_topics at ON a.id = at.article_id
+        WHERE at.topic_id = $1 AND a.deleted_at IS NULL`
+    rows, err := a.Conn.Query(ctx, query, topicID)
+    if err != nil {
+        return nil, err
+    }
+
+    defer rows.Close()
+
+    var articles []domain.Article
+
+    for rows.Next() {
+        var article domain.Article
+        if err := rows.Scan(
+            &article.ID,
+            &article.Title,
+            &article.Content,
+            &article.Author,
+            &article.Status,
+            &article.CreatedAt,
+            &article.UpdatedAt,
+        ); err != nil {
+            return nil, err
+        }
+        articles = append(articles, article)
+    }
+
+    return articles, nil
+}
