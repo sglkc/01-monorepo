@@ -13,7 +13,7 @@ For generated Swagger JSON and additional documentations, see `/docs` directory.
 <details>
   <summary>Entity Relationship Diagram</summary>
 
-  ![ERD](docs/diagram.png?raw=true)
+  ![ERD](docs/erd.png?raw=true)
 
 </details>
 
