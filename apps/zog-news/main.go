@@ -17,15 +17,23 @@ import (
 	"zog-news/internal/rest/middleware"
 	"zog-news/internal/validator"
 	"zog-news/service"
+    _ "zog-news/docs"
 
 	"github.com/labstack/echo/v4"
 	"github.com/lmittmann/tint"
+    "github.com/swaggo/echo-swagger"
 )
 
 func init() {
 	config.LoadEnv()
 }
 
+//	@title			Zero One Group News
+//	@version		1.0
+//	@description	Example Go API using Zero One Group's monorepo template
+
+//	@host		localhost:8080
+//	@BasePath	/api/v1
 func main() {
 
 	env := os.Getenv("APP_ENVIRONMENT")
@@ -77,6 +85,8 @@ func main() {
 			Message: "All is well!",
 		})
 	})
+
+    e.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	articleRepo := postgres.NewArticleRepository(dbPool)
 	articleService := service.NewArticleService(articleRepo)
