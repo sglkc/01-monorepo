@@ -161,4 +161,22 @@ you may refer credible sources for your opinion
 i want to filter by article topic name in the article_topics table, should i modify the query or is it possible to use where conditions?
 ```
 
+- Return topics of articles
+
+```
+should i return topic entites from article repository? explain why and how
+```
+
+```
+i used uuid type for the id, so i cant coalesce them into empty strings. if i use null value, it gives me error because i must check if all of the fields are not null, is there a better way to do this? or should i stop overengineer and just do if checks instead?
+```
+
+```
+#buffer
+
+please debug this, why wont anything get scanned successfully? article.ID is empty, article.Title is empty, everything is empty except for topic. meanwhile the commented code works, why?
+
+why wont the topics add? it doesnt even return the topics key from the struct
+```
+
 </details>

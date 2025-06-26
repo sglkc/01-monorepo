@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"strings"
 	"zog-news/domain"
@@ -45,17 +46,20 @@ func (a *ArticleRepository) CreateArticle(ctx context.Context, article *domain.C
 }
 
 func (a *ArticleRepository) GetArticleList(ctx context.Context, filter *domain.ArticleFilter) ([]domain.Article, error) {
-    // TODO: return with topics?
+    // TODO: is this good??
 	query := `
 		SELECT
-        DISTINCT
             a.id,
             a.title,
             a.content,
             a.author,
             a.status,
             a.created_at,
-            a.updated_at
+            a.updated_at,
+            t.id AS topic_id,
+            t.name AS topic_name,
+            t.created_at AS topic_created_at,
+            t.updated_at AS topic_updated_at
 		FROM articles a
         LEFT JOIN article_topics at ON a.id = at.article_id
         LEFT JOIN topics t ON at.topic_id = t.id
@@ -93,15 +97,24 @@ func (a *ArticleRepository) GetArticleList(ctx context.Context, filter *domain.A
     if len(conditions) > 0 {
         query += " AND" + strings.Join(conditions, " AND ")
     }
+
+    // distinct changed the order of results, so we need to order by created_at
+    query += " ORDER BY a.created_at DESC"
+
     rows, err := a.Conn.Query(ctx, query, args...)
     if err != nil {
         return nil, err
     }
     defer rows.Close()
 
-    var articles []domain.Article
+    // must collapse the topics into their own article
+    articlesMap := make(map[string]domain.Article)
 
     for rows.Next() {
+        // cant use topic struct here because their fields might be null
+        var topicID, topicName sql.NullString
+        var topicCreatedAt, topicUpdatedAt sql.NullTime
+
         var article domain.Article
         err := rows.Scan(
             &article.ID,
@@ -111,10 +124,38 @@ func (a *ArticleRepository) GetArticleList(ctx context.Context, filter *domain.A
             &article.Status,
             &article.CreatedAt,
             &article.UpdatedAt,
-            )
+            &topicID,
+            &topicName,
+            &topicCreatedAt,
+            &topicUpdatedAt,
+        )
         if err != nil {
             return nil, err
         }
+
+        // store article if not exists, else update
+        existingArticle, exists := articlesMap[article.ID]
+        if !exists {
+            article.Topics = []domain.Topic{}
+            articlesMap[article.ID] = article
+            existingArticle = article
+        }
+
+        // add topic to article if not null
+        if topicID.Valid {
+            topic := domain.Topic{
+                ID: topicID.String,
+                Name: topicName.String,
+                CreatedAt: topicCreatedAt.Time,
+                UpdatedAt: topicUpdatedAt.Time,
+            }
+            existingArticle.Topics = append(existingArticle.Topics, topic)
+            articlesMap[article.ID] = existingArticle
+        }
+    }
+
+    var articles []domain.Article
+    for _, article := range articlesMap {
         articles = append(articles, article)
     }
 

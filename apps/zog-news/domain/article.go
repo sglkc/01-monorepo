@@ -20,14 +20,15 @@ type Article struct {
 	Content   string        `json:"content"`
 	Author    string        `json:"author"`
 	Status    ArticleStatus `json:"status"`
-	CreatedAt time.Time     `json:"created_at"`
-	UpdatedAt time.Time     `json:"updated_at"`
 
     // List of topic IDs associated with the article
-    TopicIDs    []string  `json:"topic_ids,omitempty" db:"-"`
+    TopicIDs  []string      `json:"-,omitempty" db:"-"`
 
     // Full Topic objects associated with the article for responses
-    Topics      []Topic   `json:"topics,omitempty" db:"-"`
+    Topics    []Topic       `json:"topics,omitempty" db:"-"`
+
+	CreatedAt time.Time     `json:"created_at"`
+	UpdatedAt time.Time     `json:"updated_at"`
 }
 
 // Status defaults to "draft"
