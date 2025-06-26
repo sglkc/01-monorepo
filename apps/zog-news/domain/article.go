@@ -46,7 +46,8 @@ type UpdateArticleRequest struct {
 }
 
 type ArticleFilter struct {
-	Search string `json:"search" query:"search"`
+    Search string           `json:"search" query:"search"`
+    Status ArticleStatus    `json:"status" query:"status"`
 }
 
 func (a *Article) HasTopicID(topic string) error {
