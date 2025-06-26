@@ -149,3 +149,16 @@ you may refer credible sources for your opinion
 ```
 
 </details>
+
+<details>
+    <summary>
+        [09:03 AM 26/06/2025] CopilotChat.Nvim: Claude Sonnet 4
+    </summary>
+
+- Topic filtering
+
+```
+i want to filter by article topic name in the article_topics table, should i modify the query or is it possible to use where conditions?
+```
+
+</details>
