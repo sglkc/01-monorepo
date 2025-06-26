@@ -45,8 +45,10 @@ func (a *ArticleRepository) CreateArticle(ctx context.Context, article *domain.C
 }
 
 func (a *ArticleRepository) GetArticleList(ctx context.Context, filter *domain.ArticleFilter) ([]domain.Article, error) {
+    // TODO: return with topics?
 	query := `
 		SELECT
+        DISTINCT
             a.id,
             a.title,
             a.content,
@@ -55,6 +57,8 @@ func (a *ArticleRepository) GetArticleList(ctx context.Context, filter *domain.A
             a.created_at,
             a.updated_at
 		FROM articles a
+        LEFT JOIN article_topics at ON a.id = at.article_id
+        LEFT JOIN topics t ON at.topic_id = t.id
         WHERE a.deleted_at is NULL`
 
 	var args []interface{}
@@ -63,7 +67,11 @@ func (a *ArticleRepository) GetArticleList(ctx context.Context, filter *domain.A
 
 	if filter != nil {
         if filter.Search != "" {
-            condition := fmt.Sprintf(`(a.title ILIKE $%d OR u.content ILIKE $%d)`, argIndex, argIndex)
+            condition := fmt.Sprintf(
+                `(a.title ILIKE $%d OR u.content ILIKE $%d)`,
+                argIndex,
+                argIndex,
+            )
             conditions = append(conditions, condition)
             args = append(args, "%"+filter.Search+"%")
             argIndex++
@@ -72,6 +80,12 @@ func (a *ArticleRepository) GetArticleList(ctx context.Context, filter *domain.A
             condition := fmt.Sprintf(`(a.status = $%d)`, argIndex)
             conditions = append(conditions, condition)
             args = append(args, filter.Status)
+            argIndex++
+        }
+        if filter.Topic != "" {
+            condition := fmt.Sprintf(`(t.name = $%d)`, argIndex)
+            conditions = append(conditions, condition)
+            args = append(args, filter.Topic)
             argIndex++
         }
     }
