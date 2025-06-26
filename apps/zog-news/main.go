@@ -11,17 +11,17 @@ import (
 
 	"zog-news/config"
 	"zog-news/database"
+	_ "zog-news/docs"
 	"zog-news/domain"
 	"zog-news/internal/repository/postgres"
 	"zog-news/internal/rest"
 	"zog-news/internal/rest/middleware"
 	"zog-news/internal/validator"
 	"zog-news/service"
-    _ "zog-news/docs"
 
 	"github.com/labstack/echo/v4"
 	"github.com/lmittmann/tint"
-    "github.com/swaggo/echo-swagger"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 func init() {
@@ -32,8 +32,8 @@ func init() {
 //	@version		1.0
 //	@description	Example Go API using Zero One Group's monorepo template
 
-//	@host		localhost:8080
-//	@BasePath	/api/v1
+// @host		localhost:8080
+// @BasePath	/api/v1
 func main() {
 
 	env := os.Getenv("APP_ENVIRONMENT")
@@ -65,7 +65,7 @@ func main() {
 	e.Logger.SetOutput(os.Stdout)
 	e.Logger.SetLevel(0)
 
-    e.Validator = validator.NewValidator()
+	e.Validator = validator.NewValidator()
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
@@ -78,6 +78,14 @@ func main() {
 	e.Use(middleware.Cors())
 
 	// Register the routes
+	// Health check endpoint
+	//	@Summary		Health check
+	//	@Description	Check if the API is running
+	//	@Tags			system
+	//	@Accept			json
+	//	@Produce		json
+	//	@Success		200	{object}	domain.Response	"API is healthy"
+	//	@Router			/ [get]
 	e.GET("/", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, domain.Response{
 			Code:    200,
@@ -86,7 +94,7 @@ func main() {
 		})
 	})
 
-    e.GET("/swagger/*", echoSwagger.WrapHandler)
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	articleRepo := postgres.NewArticleRepository(dbPool)
 	articleService := service.NewArticleService(articleRepo)
@@ -96,10 +104,10 @@ func main() {
 
 	apiV1 := e.Group("/api/v1")
 	articlesGroup := apiV1.Group("")
-    topicsGroup := apiV1.Group("")
+	topicsGroup := apiV1.Group("")
 
 	rest.NewArticleHandler(articlesGroup, articleService)
-    rest.NewTopicHandler(topicsGroup, topicService)
+	rest.NewTopicHandler(topicsGroup, topicService)
 
 	// Get host from environment variable, default to 127.0.0.1 if not set
 	host := os.Getenv("APP_HOST")

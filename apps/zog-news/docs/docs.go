@@ -14,7 +14,1068 @@ const docTemplate = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {}
+    "paths": {
+        "/articles": {
+            "get": {
+                "description": "Get a paginated list of articles with optional filtering by search, status, and topic",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "summary": "Get articles list",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search in title and content",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "draft",
+                            "published",
+                            "archived"
+                        ],
+                        "type": "string",
+                        "description": "Filter by status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by topic name",
+                        "name": "topic",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved articles list",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseMultipleData-domain_Article"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseMultipleData-domain_Empty"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new article with the provided information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "summary": "Create new article",
+                "parameters": [
+                    {
+                        "description": "Article creation data",
+                        "name": "article",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.CreateArticleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Article successfully created",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Article"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request payload",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    }
+                }
+            }
+        },
+        "/articles/{id}": {
+            "get": {
+                "description": "Get a single article by its unique identifier",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "summary": "Get article by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Article ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved article",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Article"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid article ID format",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    },
+                    "404": {
+                        "description": "Article not found",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing article by ID with new information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "summary": "Update article",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Article ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Article update data",
+                        "name": "article",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.UpdateArticleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Article successfully updated",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Article"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request payload or article ID",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete an article by its unique identifier (soft delete)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "summary": "Delete article",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Article ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Article successfully deleted",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid article ID format",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    },
+                    "404": {
+                        "description": "Article not found",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    }
+                }
+            }
+        },
+        "/articles/{id}/topics": {
+            "get": {
+                "description": "Get all topics associated with a specific article",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "summary": "Get article topics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Article ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved topics for article",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseMultipleData-domain_Topic"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid article ID format",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    }
+                }
+            }
+        },
+        "/articles/{id}/topics/{topic_id}": {
+            "post": {
+                "description": "Associate a topic with an article",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "summary": "Add topic to article",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Article ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Topic ID",
+                        "name": "topic_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Topic successfully added to article",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Article"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid article ID or topic ID",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    },
+                    "404": {
+                        "description": "Article not found",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Disassociate a topic from an article",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "summary": "Remove topic from article",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Article ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Topic ID",
+                        "name": "topic_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Topic successfully removed from article",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid article ID or topic ID",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    },
+                    "404": {
+                        "description": "Article not found",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    }
+                }
+            }
+        },
+        "/topics": {
+            "get": {
+                "description": "Get a list of all topics with optional search filtering",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "topics"
+                ],
+                "summary": "Get topics list",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search in topic name",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved topics list",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseMultipleData-domain_Topic"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseMultipleData-domain_Empty"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new topic with the provided information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "topics"
+                ],
+                "summary": "Create new topic",
+                "parameters": [
+                    {
+                        "description": "Topic creation data",
+                        "name": "topic",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.CreateTopicRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Topic successfully created",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Topic"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request payload",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    }
+                }
+            }
+        },
+        "/topics/{id}": {
+            "get": {
+                "description": "Get a single topic by its unique identifier",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "topics"
+                ],
+                "summary": "Get topic by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Topic ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved topic",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Topic"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid topic ID format",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    },
+                    "404": {
+                        "description": "Topic not found",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing topic by ID with new information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "topics"
+                ],
+                "summary": "Update topic",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Topic ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Topic update data",
+                        "name": "topic",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.UpdateTopicRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Topic successfully updated",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Topic"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request payload or topic ID",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a topic by its unique identifier (soft delete)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "topics"
+                ],
+                "summary": "Delete topic",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Topic ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Topic successfully deleted",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid topic ID format",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    },
+                    "404": {
+                        "description": "Topic not found",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    }
+                }
+            }
+        },
+        "/topics/{id}/articles": {
+            "get": {
+                "description": "Get all articles associated with a specific topic",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "topics"
+                ],
+                "summary": "Get topic articles",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Topic ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved articles for topic",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseMultipleData-domain_Article"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid topic ID format",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseSingleData-domain_Empty"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ResponseMultipleData-domain_Empty"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "domain.Article": {
+            "description": "Article entity with associated topics",
+            "type": "object",
+            "properties": {
+                "author": {
+                    "description": "Article author",
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "content": {
+                    "description": "Article content",
+                    "type": "string",
+                    "example": "This is the content of the article..."
+                },
+                "created_at": {
+                    "description": "Creation timestamp",
+                    "type": "string",
+                    "example": "2023-06-01T12:00:00Z"
+                },
+                "id": {
+                    "description": "Article unique identifier",
+                    "type": "string",
+                    "example": "d4b8583d-5038-4838-bcd7-3d8dddfedd6a"
+                },
+                "status": {
+                    "description": "Article status",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ArticleStatus"
+                        }
+                    ],
+                    "example": "published"
+                },
+                "title": {
+                    "description": "Article title",
+                    "type": "string",
+                    "example": "Breaking News: Important Update"
+                },
+                "topics": {
+                    "description": "Full Topic objects associated with the article for responses",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Topic"
+                    }
+                },
+                "updated_at": {
+                    "description": "Last update timestamp",
+                    "type": "string",
+                    "example": "2023-06-01T12:30:00Z"
+                }
+            }
+        },
+        "domain.ArticleStatus": {
+            "description": "Article status enum",
+            "type": "string",
+            "enum": [
+                "draft",
+                "published",
+                "deleted"
+            ],
+            "x-enum-varnames": [
+                "StatusDraft",
+                "StatusPublished",
+                "StatusDeleted"
+            ]
+        },
+        "domain.CreateArticleRequest": {
+            "description": "Request body for creating a new article",
+            "type": "object",
+            "required": [
+                "author",
+                "content",
+                "title"
+            ],
+            "properties": {
+                "author": {
+                    "description": "Article author (required)",
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "content": {
+                    "description": "Article content (required)",
+                    "type": "string",
+                    "example": "This is the content of the article..."
+                },
+                "status": {
+                    "description": "Article status (draft, published, or archived)",
+                    "enum": [
+                        "draft",
+                        "published",
+                        "archived"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ArticleStatus"
+                        }
+                    ],
+                    "example": "draft"
+                },
+                "title": {
+                    "description": "Article title (required)",
+                    "type": "string",
+                    "example": "Breaking News: Important Update"
+                }
+            }
+        },
+        "domain.CreateTopicRequest": {
+            "description": "Request body for creating a new topic",
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "description": "Topic name (required)",
+                    "type": "string",
+                    "example": "Technology"
+                }
+            }
+        },
+        "domain.Empty": {
+            "description": "Empty response data structure",
+            "type": "object"
+        },
+        "domain.ResponseMultipleData-domain_Article": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP status code",
+                    "type": "integer",
+                    "example": 200
+                },
+                "data": {
+                    "description": "Response data array",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Article"
+                    }
+                },
+                "message": {
+                    "description": "Response message",
+                    "type": "string",
+                    "example": "Operation completed successfully"
+                },
+                "status": {
+                    "description": "Response status",
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "domain.ResponseMultipleData-domain_Empty": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP status code",
+                    "type": "integer",
+                    "example": 200
+                },
+                "data": {
+                    "description": "Response data array",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Empty"
+                    }
+                },
+                "message": {
+                    "description": "Response message",
+                    "type": "string",
+                    "example": "Operation completed successfully"
+                },
+                "status": {
+                    "description": "Response status",
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "domain.ResponseMultipleData-domain_Topic": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP status code",
+                    "type": "integer",
+                    "example": 200
+                },
+                "data": {
+                    "description": "Response data array",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Topic"
+                    }
+                },
+                "message": {
+                    "description": "Response message",
+                    "type": "string",
+                    "example": "Operation completed successfully"
+                },
+                "status": {
+                    "description": "Response status",
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "domain.ResponseSingleData-domain_Article": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP status code",
+                    "type": "integer",
+                    "example": 200
+                },
+                "data": {
+                    "description": "Response data",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Article"
+                        }
+                    ]
+                },
+                "message": {
+                    "description": "Response message",
+                    "type": "string",
+                    "example": "Operation completed successfully"
+                },
+                "status": {
+                    "description": "Response status",
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "domain.ResponseSingleData-domain_Empty": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP status code",
+                    "type": "integer",
+                    "example": 200
+                },
+                "data": {
+                    "description": "Response data",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Empty"
+                        }
+                    ]
+                },
+                "message": {
+                    "description": "Response message",
+                    "type": "string",
+                    "example": "Operation completed successfully"
+                },
+                "status": {
+                    "description": "Response status",
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "domain.ResponseSingleData-domain_Topic": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "HTTP status code",
+                    "type": "integer",
+                    "example": 200
+                },
+                "data": {
+                    "description": "Response data",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.Topic"
+                        }
+                    ]
+                },
+                "message": {
+                    "description": "Response message",
+                    "type": "string",
+                    "example": "Operation completed successfully"
+                },
+                "status": {
+                    "description": "Response status",
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "domain.Topic": {
+            "description": "Topic entity for categorizing articles",
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "Creation timestamp",
+                    "type": "string",
+                    "example": "2023-06-01T12:00:00Z"
+                },
+                "id": {
+                    "description": "Topic unique identifier",
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                },
+                "name": {
+                    "description": "Topic name",
+                    "type": "string",
+                    "example": "Technology"
+                },
+                "updated_at": {
+                    "description": "Last update timestamp",
+                    "type": "string",
+                    "example": "2023-06-01T12:30:00Z"
+                }
+            }
+        },
+        "domain.UpdateArticleRequest": {
+            "description": "Request body for updating an existing article",
+            "type": "object",
+            "required": [
+                "author",
+                "content",
+                "title"
+            ],
+            "properties": {
+                "author": {
+                    "description": "Article author (required)",
+                    "type": "string",
+                    "example": "Jane Doe"
+                },
+                "content": {
+                    "description": "Article content (required)",
+                    "type": "string",
+                    "example": "This is the updated content..."
+                },
+                "status": {
+                    "description": "Article status (draft, published, or archived)",
+                    "enum": [
+                        "draft",
+                        "published",
+                        "archived"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.ArticleStatus"
+                        }
+                    ],
+                    "example": "published"
+                },
+                "title": {
+                    "description": "Article title (required)",
+                    "type": "string",
+                    "example": "Updated Breaking News"
+                }
+            }
+        },
+        "domain.UpdateTopicRequest": {
+            "description": "Request body for updating an existing topic",
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "description": "Topic name (required)",
+                    "type": "string",
+                    "example": "Updated Technology"
+                }
+            }
+        }
+    }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
