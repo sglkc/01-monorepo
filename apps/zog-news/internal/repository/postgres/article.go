@@ -167,35 +167,69 @@ func (a *ArticleRepository) GetArticle(ctx context.Context, id uuid.UUID) (*doma
     ctx, span := tracer.Start(ctx, "ArticleRepository.GetArticle")
     defer span.End()
 
+    // TODO: better approach?
     query := `
-    SELECT
-    id,
-    title,
-    content,
-    author,
-    status,
-    created_at,
-    updated_at
-    FROM articles
-    WHERE id = $1 AND deleted_at IS NULL`
+		SELECT
+            a.id,
+            a.title,
+            a.content,
+            a.author,
+            a.status,
+            a.created_at,
+            a.updated_at,
+            t.id AS topic_id,
+            t.name AS topic_name,
+            t.created_at AS topic_created_at,
+            t.updated_at AS topic_updated_at
+		FROM articles a
+        LEFT JOIN article_topics at ON a.id = at.article_id
+        LEFT JOIN topics t ON at.topic_id = t.id
+        WHERE a.id = $1 AND a.deleted_at IS NULL`
 
     span.SetAttributes(attribute.String("query.statement", query))
     span.SetAttributes(attribute.String("query.parameter", id.String()))
-    row := a.Conn.QueryRow(ctx, query, id)
-
-    var article domain.Article
-    err := row.Scan(
-        &article.ID,
-        &article.Title,
-        &article.Content,
-        &article.Author,
-        &article.Status,
-        &article.CreatedAt,
-        &article.UpdatedAt,
-        )
+    rows, err := a.Conn.Query(ctx, query, id)
     if err != nil {
-        span.RecordError(err)
         return nil, err
+    }
+    defer rows.Close()
+
+    article := domain.Article{}
+    article.Topics = []domain.Topic{}
+
+    for rows.Next() {
+        // cant use topic struct here because their fields might be null
+        var topicID, topicName sql.NullString
+        var topicCreatedAt, topicUpdatedAt sql.NullTime
+
+        err := rows.Scan(
+            &article.ID,
+            &article.Title,
+            &article.Content,
+            &article.Author,
+            &article.Status,
+            &article.CreatedAt,
+            &article.UpdatedAt,
+            &topicID,
+            &topicName,
+            &topicCreatedAt,
+            &topicUpdatedAt,
+        )
+        if err != nil {
+            span.RecordError(err)
+            return nil, err
+        }
+
+        // add topic to article if not null
+        if topicID.Valid {
+            topic := domain.Topic{
+                ID: topicID.String,
+                Name: topicName.String,
+                CreatedAt: topicCreatedAt.Time,
+                UpdatedAt: topicUpdatedAt.Time,
+            }
+            article.Topics = append(article.Topics, topic)
+        }
     }
 
     // TODO: should topics be fetched here?
